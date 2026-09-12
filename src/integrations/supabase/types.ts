@@ -14,7 +14,131 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      articles: {
+        Row: {
+          article_date: string | null
+          created_at: string
+          document_id: string
+          entities: string[]
+          headline: string | null
+          id: string
+          original_language: string | null
+          original_text: string
+          source: string | null
+          user_id: string
+        }
+        Insert: {
+          article_date?: string | null
+          created_at?: string
+          document_id: string
+          entities?: string[]
+          headline?: string | null
+          id?: string
+          original_language?: string | null
+          original_text: string
+          source?: string | null
+          user_id: string
+        }
+        Update: {
+          article_date?: string | null
+          created_at?: string
+          document_id?: string
+          entities?: string[]
+          headline?: string | null
+          id?: string
+          original_language?: string | null
+          original_text?: string
+          source?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "articles_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          language: string | null
+          mime_type: string
+          name: string
+          progress: number
+          published_at: string | null
+          status: string
+          storage_path: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          language?: string | null
+          mime_type?: string
+          name: string
+          progress?: number
+          published_at?: string | null
+          status?: string
+          storage_path: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          language?: string | null
+          mime_type?: string
+          name?: string
+          progress?: number
+          published_at?: string | null
+          status?: string
+          storage_path?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          auto_extract: boolean
+          created_at: string
+          date_format: string
+          default_language: string
+          detect_language: boolean
+          keep_original: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_extract?: boolean
+          created_at?: string
+          date_format?: string
+          default_language?: string
+          detect_language?: boolean
+          keep_original?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_extract?: boolean
+          created_at?: string
+          date_format?: string
+          default_language?: string
+          detect_language?: boolean
+          keep_original?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
