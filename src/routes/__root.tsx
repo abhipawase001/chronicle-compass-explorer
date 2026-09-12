@@ -80,11 +80,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "News Chronicle AI" },
+      {
+        name: "description",
+        content:
+          "Upload multilingual newspapers, extract articles and entities, and build translated chronological timelines for any name or topic.",
+      },
+      { property: "og:title", content: "News Chronicle AI" },
+      {
+        property: "og:description",
+        content:
+          "Multilingual newspaper intelligence: OCR ingestion, entity tracking and translated timelines.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
