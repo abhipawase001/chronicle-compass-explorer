@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth")({
@@ -31,13 +31,15 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+const ACCESS_PASSWORD = "Chiu@2005";
+const INTERNAL_SUFFIX = "#nc-2005-store";
+
 function AuthPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -49,22 +51,41 @@ function AuthPage() {
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
 
-  const run = async (mode: "signin" | "signup") => {
+  const run = async () => {
+    const name = username.trim().toLowerCase().replace(/[^a-z0-9._-]/g, "");
+    if (!name) {
+      setError("Please enter a username.");
+      return;
+    }
+    if (password !== ACCESS_PASSWORD) {
+      setError("Incorrect password.");
+      return;
+    }
+
     setBusy(true);
     setError(null);
-    setNotice(null);
     try {
-      if (mode === "signin") {
-        const { error: err } = await supabase.auth.signInWithPassword({ email, password });
-        if (err) throw err;
-      } else {
-        const { error: err } = await supabase.auth.signUp({
+      const email = `${name}@chronicle.local`;
+      const secret = `${ACCESS_PASSWORD}${INTERNAL_SUFFIX}`;
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password: secret,
+      });
+
+      if (signInError) {
+        const { error: signUpError } = await supabase.auth.signUp({
           email,
-          password,
+          password: secret,
           options: { emailRedirectTo: window.location.origin },
         });
-        if (err) throw err;
-        setNotice("Account created. If email confirmation is on, check your inbox.");
+        if (signUpError) throw signUpError;
+
+        const { error: retryError } = await supabase.auth.signInWithPassword({
+          email,
+          password: secret,
+        });
+        if (retryError) throw retryError;
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
@@ -82,7 +103,7 @@ function AuthPage() {
           </span>
           <CardTitle>News Chronicle AI</CardTitle>
           <CardDescription>
-            Sign in so your newspapers, entity tags and preferences are saved.
+            Pick any username and enter the shared access password to continue.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -91,50 +112,37 @@ function AuthPage() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          {notice && (
-            <Alert>
-              <AlertDescription>{notice}</AlertDescription>
-            </Alert>
-          )}
 
-          <Tabs defaultValue="signin">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign in</TabsTrigger>
-              <TabsTrigger value="signup">Create account</TabsTrigger>
-            </TabsList>
-
-            {(["signin", "signup"] as const).map((mode) => (
-              <TabsContent key={mode} value={mode} className="space-y-3 pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor={`${mode}-email`}>Email</Label>
-                  <Input
-                    id={`${mode}-email`}
-                    type="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`${mode}-password`}>Password</Label>
-                  <Input
-                    id={`${mode}-password`}
-                    type="password"
-                    autoComplete={mode === "signin" ? "current-password" : "new-password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && run(mode)}
-                  />
-                </div>
-                <Button className="w-full" onClick={() => run(mode)} disabled={busy || !email || !password}>
-                  {busy && <Loader2 className="mr-2 size-4 animate-spin" />}
-                  {mode === "signin" ? "Sign in" : "Create account"}
-                </Button>
-              </TabsContent>
-            ))}
-          </Tabs>
+          <div className="space-y-2">
+            <Label htmlFor="username">Username</Label>
+            <Input
+              id="username"
+              type="text"
+              autoComplete="username"
+              placeholder="e.g. abhishek"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && run()}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && run()}
+            />
+          </div>
+          <Button className="w-full" onClick={run} disabled={busy || !username || !password}>
+            {busy && <Loader2 className="mr-2 size-4 animate-spin" />}
+            Sign in
+          </Button>
         </CardContent>
       </Card>
     </div>
   );
 }
+
