@@ -11,6 +11,9 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { NewsProvider } from "@/lib/news-context";
 
 function NotFoundComponent() {
   return (
@@ -119,8 +122,25 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <NewsProvider>
+        <SidebarProvider>
+          <div className="flex min-h-screen w-full bg-background">
+            <AppSidebar />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <header className="flex h-14 items-center gap-2 border-b border-border bg-card px-4">
+                <SidebarTrigger />
+                <span className="text-sm font-medium text-muted-foreground">
+                  Multilingual newspaper intelligence
+                </span>
+              </header>
+              <main className="flex-1">
+                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                <Outlet />
+              </main>
+            </div>
+          </div>
+        </SidebarProvider>
+      </NewsProvider>
     </QueryClientProvider>
   );
 }
