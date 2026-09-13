@@ -1,4 +1,4 @@
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireChronicleAuth } from "./auth-token-middleware";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -29,7 +29,7 @@ const norm = (s: string) =>
     .trim();
 
 export const searchTimeline = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireChronicleAuth])
   .inputValidator((input: unknown) =>
     z.object({ query: z.string().min(1), language: z.string().min(1) }).parse(input),
   )
