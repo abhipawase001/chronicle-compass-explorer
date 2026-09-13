@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { CalendarDays, ChevronDown, Loader2, Newspaper, Search } from "lucide-react";
 
@@ -89,7 +89,7 @@ function SearchPage() {
   const searchMutation = useMutation({
     // Repeat searches for the same term + language are served from cache.
     mutationFn: (lang: string) =>
-      queryClient.fetchQuery({
+      queryClient.fetchQuery<TimelineItem[]>({
         queryKey: ["timeline", query.trim().toLowerCase(), lang],
         queryFn: () => search({ data: { query, language: lang } }),
         staleTime: 10 * 60 * 1000,
