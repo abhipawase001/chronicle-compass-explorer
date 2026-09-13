@@ -76,18 +76,30 @@ function TimelineCard({ item }: { item: TimelineItem }) {
 function SearchPage() {
   const search = useServerFn(searchTimeline);
   const loadPrefs = useServerFn(getPreferences);
+  const queryClient = useQueryClient();
   const { query, setQuery, language, setLanguage, results, setResults } = useNews();
   const [modalOpen, setModalOpen] = useState(false);
 
-  const prefsQuery = useQuery({ queryKey: ["preferences"], queryFn: () => loadPrefs() });
+  const prefsQuery = useQuery({
+    queryKey: ["preferences"],
+    queryFn: () => loadPrefs(),
+    staleTime: 5 * 60 * 1000,
+  });
 
   const searchMutation = useMutation({
-    mutationFn: (lang: string) => search({ data: { query, language: lang } }),
+    // Repeat searches for the same term + language are served from cache.
+    mutationFn: (lang: string) =>
+      queryClient.fetchQuery({
+        queryKey: ["timeline", query.trim().toLowerCase(), lang],
+        queryFn: () => search({ data: { query, language: lang } }),
+        staleTime: 10 * 60 * 1000,
+      }),
     onSuccess: (items, lang) => {
       setResults(items);
       setLanguage(lang);
     },
   });
+
 
   const startSearch = () => {
     if (!query.trim()) return;
