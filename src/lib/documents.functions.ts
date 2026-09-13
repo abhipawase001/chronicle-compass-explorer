@@ -1,4 +1,4 @@
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireChronicleAuth } from "./auth-token-middleware";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -17,7 +17,7 @@ export type DocumentRow = {
 };
 
 export const listDocuments = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireChronicleAuth])
   .handler(async ({ context }): Promise<DocumentRow[]> => {
     const { data, error } = await context.supabase
       .from("documents")
@@ -32,7 +32,7 @@ export const listDocuments = createServerFn({ method: "GET" })
   });
 
 export const registerDocument = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireChronicleAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
@@ -60,7 +60,7 @@ export const registerDocument = createServerFn({ method: "POST" })
   });
 
 export const deleteDocument = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireChronicleAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { data: doc } = await context.supabase
@@ -100,7 +100,7 @@ Return ONLY valid JSON, no markdown, in this exact shape:
 Keep article text in the original language exactly as printed. Split the page into distinct articles. If a date is not printed on an article, use the publication date. Never invent facts.`;
 
 export const processDocument = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireChronicleAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;

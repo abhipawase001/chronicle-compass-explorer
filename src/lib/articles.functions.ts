@@ -1,4 +1,4 @@
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireChronicleAuth } from "./auth-token-middleware";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -14,7 +14,7 @@ export type ArticleRow = {
 };
 
 export const listArticles = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireChronicleAuth])
   .inputValidator((input: unknown) =>
     z.object({ documentId: z.string().uuid().optional() }).parse(input ?? {}),
   )
@@ -35,7 +35,7 @@ export const listArticles = createServerFn({ method: "POST" })
   });
 
 export const updateArticleEntities = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireChronicleAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
@@ -63,7 +63,7 @@ export const updateArticleEntities = createServerFn({ method: "POST" })
   });
 
 export const getDocument = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireChronicleAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase

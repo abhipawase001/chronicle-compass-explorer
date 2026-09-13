@@ -1,4 +1,4 @@
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireChronicleAuth } from "./auth-token-middleware";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -27,7 +27,7 @@ const PreferencesSchema = z.object({
 });
 
 export const getPreferences = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireChronicleAuth])
   .handler(async ({ context }): Promise<Preferences> => {
     const { data, error } = await context.supabase
       .from("user_preferences")
@@ -39,7 +39,7 @@ export const getPreferences = createServerFn({ method: "GET" })
   });
 
 export const savePreferences = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireChronicleAuth])
   .inputValidator((input: unknown) => PreferencesSchema.parse(input))
   .handler(async ({ data, context }): Promise<Preferences> => {
     const { error } = await context.supabase
